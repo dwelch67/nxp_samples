@@ -1,0 +1,71 @@
+
+I bought a handful of LPC822M101JDH20J parts and soldered them to
+a breakout board.
+
+tssop20breakout.brd
+
+I went to https://oshpark.com uploaded the brd file and as of this
+writing
+
+Detected 2 layer board of 0.75x1.05 inches (19x27mm). $3.90 for three.
+
+Someday I hope to make a video or pictures soldering as it really
+isnt that hard, you CAN do it...
+
+
+This is a WIP.  Trying to figure out the UART in system programming
+(ISP).  The good thing is they have a bootloader and strap in that
+if you power on with, in this case PIO0_12 grounded, then you go
+into the bootloader.  The bad news is that NXP is not consistent
+with their bootloaders, some are okay with you just sending a
+carriage return, some require a CR/LF.  Some return just a CR and
+no LF, some return both.  This part added the joy of not using
+uuencoding for the data, and the documentation is wrong.  So still
+trying to sort out how to actually write to ram as you have to
+write to ram to then copy from ram to flash.   Or maybe the read from
+ram command, which appears to do something, is not reading from where
+I asked it to read.  I also find it very interesting that the interface
+is base 10 based, they dont take addresses or send back values in hex
+they use decimal, which means they have extra code in there to do
+the conversion to/from decimal.  A bootloader like this should be
+purely hex based even if ASCII, makes you wonder...
+
+And you need to reset or power cycle to try again.  for now I am power
+cycling.
+
+Bare minimum I only need to power pin 15 with 3.3 and 16 with ground
+to turn it on.  pin 6 is U0_TXD and pin 19 is U0_RXD.  since it is
+so far still unprogrammed I dont actually have to strap pin 4 to ground
+but will if/when I program the flash for the first time.
+
+1 PIO0_23
+2 PIO0_17
+3 PIO0_13
+4 PIO0_12
+5 !RESET/PIO0_5
+6 PIO0_4     txd
+7
+8
+9
+10
+
+20
+19 PIO0_0  rxd
+18 vrefp
+17 VREFN
+16 VSS  ground
+15 VDD  3.3
+14
+13
+12
+11
+
+
+
+PIO0_0  U0_RXD
+PIO0_4  U0_TXD
+
+PIO0_12 — General-purpose port 0 input/output 12. ISP entry
+pin. A LOW level on this pin during reset starts the ISP command
+handler.
+

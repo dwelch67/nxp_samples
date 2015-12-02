@@ -1,0 +1,6 @@
+
+I am trying to get this code to load into ram to see if the UART ISP
+bootloader leaves the UART programmed.  If it does we should be able
+to just shove a character in and see it come out.  So far I cannot load
+or cannot tell if I have loaded this program and run it.  May have
+to switch to an led blinker first.
