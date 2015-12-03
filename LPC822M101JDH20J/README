@@ -9,63 +9,174 @@ writing
 
 Detected 2 layer board of 0.75x1.05 inches (19x27mm). $3.90 for three.
 
+You can buy TSSOP20 boards on ebay for about a buck a board, or
+other places.  I was able to make a smaller one that was under a buck
+a board, but what I did with the above board is I put a cluster of
+pins on each end that are tied to themselves.  Basically I can have
+a number of 3.3V pins and a number of GND pins in case I want to
+have more than one if the MCU pins tied to 3.3v or ground.  I like to
+use these
+
+https://www.sparkfun.com/products/10898
+
+For everything rather than a breadboard and male to male, just the
+way I roll.
+
 Someday I hope to make a video or pictures soldering as it really
 isnt that hard, you CAN do it...
 
+I googled for LPC822M101JDH20J and as of this writing, but I dont
+expect it to stay this link forever I hit this
 
-This is a WIP.  Trying to figure out the UART in system programming
-(ISP).  The good thing is they have a bootloader and strap in that
-if you power on with, in this case PIO0_12 grounded, then you go
-into the bootloader.  The bad news is that NXP is not consistent
-with their bootloaders, some are okay with you just sending a
-carriage return, some require a CR/LF.  Some return just a CR and
-no LF, some return both.  This part added the joy of not using
-uuencoding for the data, and the documentation is wrong.  So still
-trying to sort out how to actually write to ram as you have to
-write to ram to then copy from ram to flash.   Or maybe the read from
-ram command, which appears to do something, is not reading from where
-I asked it to read.  I also find it very interesting that the interface
-is base 10 based, they dont take addresses or send back values in hex
-they use decimal, which means they have extra code in there to do
-the conversion to/from decimal.  A bootloader like this should be
-purely hex based even if ASCII, makes you wonder...
+http://www.nxp.com/products/microcontrollers/core/cortex_m0plus_m0/LPC822M101JDH20.html
 
-And you need to reset or power cycle to try again.  for now I am power
-cycling.
+Under documentation, I got the LPC82x datasheet and the LP82x users
+manual (UM10800 as of this writing).  The users manual is our primary
+resource.  But often you need the datasheet for pinout information and
+some vendors base addresses are there and other things.  NXP is nice
+that the whole address is shown right there at the register spec not
+something you have to find different info in three places to figure out
+the address.
 
-Bare minimum I only need to power pin 15 with 3.3 and 16 with ground
-to turn it on.  pin 6 is U0_TXD and pin 19 is U0_RXD.  since it is
-so far still unprogrammed I dont actually have to strap pin 4 to ground
-but will if/when I program the flash for the first time.
+You probably also want to go to http://infocenter.arm.com and get the
+Technical Reference Manual (TRM) for the Cortex-m0+, and the
+Architectural Reference Manual (ARM ARM) for the ARMv6-m.
 
-1 PIO0_23
-2 PIO0_17
-3 PIO0_13
-4 PIO0_12
-5 !RESET/PIO0_5
-6 PIO0_4     txd
-7
-8
-9
-10
+Bare minimum I only need to power pin 15 with 3.3V and 16 with ground
+to turn it on.  The bootloader uses pin 6 as U0_TXD and pin 19 is U0_RXD
+for the bootloader.  Since it is so far still unprogrammed I dont
+actually have to strap pin 4 to ground but will if/when I program the
+flash and then want to use the NXP bootloader to erase or reprogram.
 
-20
-19 PIO0_0  rxd
-18 vrefp
-17 VREFN
-16 VSS  ground
-15 VDD  3.3
-14
-13
-12
-11
+1 PIO0_23            20
+2 PIO0_17            19 PIO0_0  rxd
+3 PIO0_13            18 vrefp
+4 PIO0_12            17 VREFN
+5 !RESET/PIO0_5      16 VSS  ground
+6 PIO0_4     txd     15 VDD  3.3
+7                    14
+8                    13
+9                    12
+10                   11
 
+The good thing is they have a bootloader and strap in that if you power
+on with, in this case PIO0_12 grounded, then you go into the bootloader.
+The bad news is that NXP is not consistent with their bootloaders, some
+are okay with you just sending a carriage return, some require a CR/LF.
+Some return just a CR and no LF, some return both.  This part has the
+joy of not using uuencoding for the data, and the documentation is
+wrong.  Lots of things to make you wonder about, not in a good way, but
+oh well.  I think I have a handle on this chips nuances.  Welcome
+to bare metal.
 
-
+Bootloader:
+PIO0_12 grounded
 PIO0_0  U0_RXD
 PIO0_4  U0_TXD
 
-PIO0_12 — General-purpose port 0 input/output 12. ISP entry
-pin. A LOW level on this pin during reset starts the ISP command
-handler.
+There is a prognxp directory with three tools in it, you get one shot
+per reset/power cycle to run the program, if it doesnt say synchronized
+and more stuff after it then you didnt have the part powered, the
+strap grounded or the rx/tx wired up right, remember your host whatever
+tx is tied to the mcu rx and vice versa.  You dont wire tx to tx and
+rx to rx, that can damage parts.
+
+Your host side serial port/uart must be 3.3V based, not RS232 (which
+is a voltage standard not a protocol), that will totally destroy this
+part.
+
+Since you already have the soldering skills to put this part on a
+breakout board and add pins, then you can get one/some of these to
+stash in your toolbox.  Add the four pins on the bottom, power ground
+and rx/tx.  And remember to modify the solder bridges on the back to
+change it from the default 5V to 3.3V.
+
+http://jim.sh/ftx/
+
+I am powering my microcontroller and talking to it with one of these
+boards and getting power for the mcu from the ftdi board as well.
+
+Sparkfun and Adafruit and Ebay (china made/shipped) have boards and
+ftdi cables for this kind of thing.  Use raspberry pi in the search
+as needed.   On ebay I searched for
+
+raspberry pi ftdi cable
+
+And found a number of them for a few bucks.
+
+Once I plug in the ftdi whatever to the computer I use dmesg and check
+the last line
+
+[15305.931343] usb 7-2: FTDI USB Serial Device converter now attached
+to ttyUSB2
+
+To know what the device name is, in this example /dev/ttyUSB2 is the
+string I use for these programs.
+
+So the three programs
+
+prognxp_erase /dev/ttySOMETHING
+
+Will erase the flash
+
+prognxp_sram /dev/ttySOMETHING program.bin
+
+Will load a program into sram, you have to build the program for sram
+for this to work, see below
+
+prognxp_flash /dev/ttySOMETHING program.bin
+
+Will program the flash with the program, and you then need to release
+the strap (or tie it high) and reset or power cycle to see it run.  The
+program has to be built to be run from flash.
+
+
+The cortex-m (compared to full sized arm cores) uses a vector table
+of addresses at the beginning of the flash/binary.  So you have to
+have the bootstrap setup right, and you have to link with the right
+address space.  If you want to use the NXP bootloader to run a program
+without commiting it to flash, you have to have a branch to address
+that starts with running code.  I assume for sram loading that the
+first bytes are the first instruction, not a table.  The uart00 and
+uart01 examples are specifically built to be run with prognxp_sram
+after that I will likely have each example include a flash and sram
+version, if it makes sense to do so.
+
+uart00 was a quick experiment to see if the bootloader left the uart
+configured.  I am currently using 38400 baud and prognxp_sram ends
+with an infinite loop looking for characters, so if you use it to
+load uart00.bin then you get 0x55 in that output, which means it
+loaded and ran the program and the program wrote to the uart tx data
+register and sent that byte.  Uart00 is a few lines of asm.
+
+uart01 is C based, it also assumes the NXP bootloader has configured
+the uart, so it is sram based too, but checks the tx ready and spams
+the characters 0 to 7 out forever.  So you can ctrl-c out of prognxp_sram
+and open a dumb terminal (minicom is good)
+
+my /etc/minicom/minirc.usb2 file
+
+--- cut ---
+pu port             /dev/ttyUSB2
+pu minit
+pu mhangup
+pu rtscts           No
+pu sound            No
+--- cut ---
+
+Then run minicom usb2
+And then I ctrl-a then p then d then enter to change to 38400.
+I wouldnt be suprised if I went into ser.c and changed it to 115200 if
+the mcu would handle that.  But I have not tried that yet.
+
+More examples to follow.
+
+For a toolchain you can go here
+
+https://launchpad.net/gcc-arm-embedded
+
+Or visit my build_gcc repo and use the build_arm script to build a
+toolchain from gnu sources.
+
+Or choose one of the many other solutions too many to list.
 

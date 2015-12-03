@@ -1,0 +1,11 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+This goes one step past uart00.  It is first off in C not asm, but still
+is only designed to run from sram, not flash yet.  Future samples will
+run from flash.
+
+This one will use tx ready and output 0123456701234567012... forever
+at the detected rate as of this writing ser.c in prognxp is set
+to 38400.  See the top level readme for using minicom.

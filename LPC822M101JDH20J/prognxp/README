@@ -1,0 +1,67 @@
+
+Why cant these folks (not just NXP, but others) stick to one protocol?
+Or more accurately when you pretend to stick to one protocol be
+consistent.  If the first one didnt respond with CR/LF then dont change
+it.  If the first one didnt require CR/LF then dont change it.  If the
+first one wanted uuencoded data, then dont change that.  If you are not
+going to use uuencoded data, then why do this whole thing in ascii
+anyway?  Start over, that is preferred to being wishy washy.
+
+Anyway.  As the top level readme indicates, there are three programs
+here, one that just erases.  One that runs programs in sram, the other
+writes your program to flash, and then you power cycle or reboot.
+
+The users manual is wrong, the write command says aligned on a word
+and multiples of 4 bytes per write, but for example a 4 byte write
+does not work.  But 64 does and 256 does, and I have not tried any
+other lengths (well 4 and 8 dont work).  So after much pain I got
+that figured out.  Also the write command indicates that after you
+send the data you get an OK[CR][LF] back.  You do not.
+
+I forgot initially I had done this, but it was a pretty neat trick.
+After syncing and while turning the echo off I intentionally leave a
+0x0A (LF) in my receive fifo.  Ideally the plan is I look for a
+packet of data starting with 0x0A and ending with 0x0D.  Then parse
+through that.  I had forgotten this and gotten out of sync at first.
+
+I dont think it says really if/how you mix the commands to flash, I
+had some old code for an old part and just modified it a little for
+this, the sector sizes are different here, 1024 bytes.  Actually
+I have not tested prognxp_flash yet so it may not actually work like
+this I did do one test that wrote 256 bytes to ram then did P and C
+and copied them to flash, and that worked.
+
+The NXP bootloader looks for the strap to be low, if it sees that
+it stays in the bootloader and waits for serial (or maybe other
+inputs).  If it doesnt see the strap then it examines the first
+0x20 bytes of flash, if that checksum passes then it assumes we
+have a real program there and runs from flash, if not then it also
+stays in the bootloader.  Hmmm, actually that is how the old part
+works, have to see if that is how this one works.  They seem to change
+their mind every so often.
+
+So go to the uart00 directory and build that, then come back and
+build here and
+
+./prognxp_sram /dev/ttySOMETHING ../uart00/uart00.bin
+read 12 bytes
+port opened
+synchronized
+echo off
+.unlocked
+write 0x10000800
+.write 0x10000840
+.write 0x10000880
+.write 0x100008C0
+.write 0x10000900
+[a bunch more writes then]
+.go
+xx
+0x0A
+0x30
+0x0D
+0x55
+
+that 0x55 at the end is the sign that the uart00.bin program ran.  The
+lack of a 0x0A before it indicates I probably stomped on the 0x0A by
+not waiting for the tx ready.

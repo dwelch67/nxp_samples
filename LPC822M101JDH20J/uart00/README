@@ -1,6 +1,4 @@
 
-I am trying to get this code to load into ram to see if the UART ISP
-bootloader leaves the UART programmed.  If it does we should be able
-to just shove a character in and see it come out.  So far I cannot load
-or cannot tell if I have loaded this program and run it.  May have
-to switch to an led blinker first.
+The UART ISP does leave the uart configured when you load and run from
+ram.  So this example when loaded with prognxp_sram will output
+the 0x55 character.
