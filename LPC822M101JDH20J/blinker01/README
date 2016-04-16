@@ -1,0 +1,10 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+Simple led blinker.  I have an led (and resistor) connected between
+PIO0_23 and ground.
+
+The blink rate is governed by how fast the code counts, can be compiler
+dependent.  But if you change one or both of the numbers you can
+change the blink rate relative to the prior number you used.
