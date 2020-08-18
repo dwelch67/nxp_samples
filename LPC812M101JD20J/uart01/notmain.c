@@ -35,32 +35,29 @@ void uart_init ( void )
     PUT32(PINASSIGN0,ra);
 
     PUT32(UARTCLOCKDIV,0x00000001);
+    if(0)
+    {
+        //38400 baud
+        //reg 10-1 mul 244 38400.000000 0.000000
+        PUT32(UARTFRGDIV,256-1);
+        PUT32(UARTFRGMULT,244);
+        PUT32(USART0BASE+0x20,10-1);
+    }
     if(1)
     {
-        //38400 baud
-        //12000000/16*((1+(7/256))*(19) )
-        //reg 19 mul 7 38423.053832 23.053832
-        PUT32(UARTFRGDIV,255);
-        PUT32(UARTFRGMULT,7);
-        PUT32(USART0BASE+0x20,19);
+        //115200 baud
+        //reg 6-1 mul 22 115107.913669 92.086331
+        PUT32(UARTFRGDIV,256-1);
+        PUT32(UARTFRGMULT,22);
+        PUT32(USART0BASE+0x20,6-1);
     }
-    if(0) //why doesnt this work?!
-    {
-        //38400 baud
-        //12000000/16*((1+(7/256))*(19) )
-        //reg 10 mul 244 38400.000000 0.000000
-        PUT32(UARTFRGDIV,255);
-        PUT32(UARTFRGMULT,244);
-        PUT32(USART0BASE+0x20,10);
-    }
-    if(0) //why doesnt this work?!
+    if(0)
     {
         //115200 baud
-        //12000000/16*((1+(22/256))*(6) )
-        //reg 6 mul 22 115107.913669 92.086331
-        PUT32(UARTFRGDIV,255);
-        PUT32(UARTFRGMULT,23);
-        PUT32(USART0BASE+0x20,6);
+        //reg 4-1 mul 161 115107.913669 92.086331
+        PUT32(UARTFRGDIV,256-1);
+        PUT32(UARTFRGMULT,161);
+        PUT32(USART0BASE+0x20,4-1);
     }
     PUT32(USART0BASE+0x00,0x00000005);
 }

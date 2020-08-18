@@ -5,48 +5,59 @@ LEDs on P14,P15,P16,P17
 
 baud rate math is a bit funky, but interesting.
 
-12000000 / (16 * 38400) = 19.53125
-16 * 38400 * 19 = 11673600
-12000000 / 11673600 = 1.0279605...
-
-  1/256 = 0.003906
-  2/256 = 0.007812
-  3/256 = 0.011719
-  4/256 = 0.015625
-  5/256 = 0.019531
-  6/256 = 0.023438
-  7/256 = 0.027344 <---
-  8/256 = 0.031250
-  9/256 = 0.035156
- 10/256 = 0.039062
-
-12000000 /(16 * 19 * (1+(7/256))) = 38423
-(this one works)
-
-using my tool
-
 12000000 /(16 * 10 * (1+(244/256))) = 38400 exactly
-reg 10 mul 244 38400.000000 0.000000
-(this one doesnt work)
+reg 10-1 mul 244 38400.000000 0.000000
 
-12000000 / (16 * 115200) = 6.51041666...
-16 * 115200 * 6 = 11059200
-12000000 / 11059200 = 1.085069444...
+The multiply register is as is 244, the two division registers
+are n-1 so 10-1 and 256-1.
 
- 21/256 = 0.082031
- 22/256 = 0.085938 <---
- 23/256 = 0.089844
-
-12000000 /(16 * 6 * (1+(22/256))) = 115108  (107.9)
-reg 6 mul 22 115107.913669 92.086331
-(this one doesnt work)
-
-using my tool.
+with my tool can start baud divisor at 1 or at clk/(16 * baud)
 
 12000000 /(16 * 4 * (1+(161/256))) = 115108
-reg 4 mul 161 115107.913669 92.086331
-(this one doesnt work)
+reg 4-1 mul 161 115107.913669 92.086331
 
+reg 6-1 mul 22 115107.913669 92.086331
 
+You can basically start with
 
+clk / (16*baud)
+12000000/ (16*115200) = 6.5
+
+so uart BRG register is 6-1.
+
+Then
+
+16 * 6 * 115200 = 11059200
+
+12000000/11059200 = 1.0850694444
+
+ 21/256 = 0.082031
+ 22/256 = 0.085938 <-
+ 23/256 = 0.089844
+
+so then
+
+12000000 /(16 * 6 * (1+(22/256))) = 115108
+
+basically they have this fractional divisor up front that gives you
+clk divided by somewhere between a little over 1 to a little under 2.
+
+1+   1/256 = 1.003906
+1+   2/256 = 1.007812
+1+   3/256 = 1.011719
+...
+1+ 253/256 = 1.988281
+1+ 254/256 = 1.992188
+1+ 255/256 = 1.996094
+
+and then you do a whole number division of that.
+
+Important to remember that both the 256 divisor and the brg register
+divisor are n-1.  I think there is a bug in the bootloader for 38400
+which lead me to think that the brg was not n-1 and I struggled getting
+this math to work properly.
+
+(If you use the uart bootloader and load a program to ram then uart is
+left programmed and working.  Can dump the registers to see how they
+left it).
 
