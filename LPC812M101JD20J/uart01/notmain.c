@@ -11,7 +11,7 @@ extern void dummy ( unsigned int );
 #define UARTFRGMULT  0x400480F4
 #define PINASSIGN0 0x4000C000
 
-void uart_init ( void )
+static void uart_init ( void )
 {
     unsigned int ra;
 
