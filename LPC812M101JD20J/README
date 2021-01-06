@@ -4,3 +4,6 @@ LPC812M101JD20J
 4kb of ram
 LPC812M101JD20 16 kB PIO0_12 SOP20
 
+
+proglpc for flash, program for run from ram.
+
