@@ -1,0 +1,32 @@
+
+See the ired00 README first.
+
+Your first ired entetainment should start with echoing the infrared
+using your visible led.  Connect power and ground to the IR recivier.
+
+Connect the output of the receiver to P0_7 on the mcu.
+
+If you have not used a scope or other to "see" the signal you are
+likely to simply echo the signal:
+
+		if(ra&1<<7) PUT32(GPIOSETP0,(1<<14));
+		else		PUT32(GPIOCLRP0,(1<<14));
+		
+And that is perfectly fine.  With this one and I expect in general
+but YMMV is that when there is no obvious IR in the room the visible
+led will be on.  When you point an IR remote at the receiver and
+press buttons or press and hold then the led will blink off but go
+back to on when idle.  This is very important to begin decoding because
+we need to know if the first pulse from the receiver is a falling edge
+or rising edge.  The whole decode starts from there and if you have
+it upside down your decoder wont work.
+
+In this example I inverted the signal so the led is normally off
+
+		if(ra&1<<7) PUT32(GPIOCLRP0,(1<<14));
+		else		PUT32(GPIOSETP0,(1<<14));
+		
+So long as it works with a 3.3v mcu and it is a receiver not just a 
+diode that you have to pass through a filter, amplifier, whatever
+yourself, you can use whichever one you can find.  The examples here
+are not specific to the ir receiver.
