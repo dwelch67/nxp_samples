@@ -7,3 +7,13 @@ LPC812M101JD20 16 kB PIO0_12 SOP20
 
 proglpc for flash, program for run from ram.
 
+Is P12 or P01 the ISP pin?
+
+These are configurable, but choose these
+
+P0_0 RX
+P0_4 TX
+
+
+
+
