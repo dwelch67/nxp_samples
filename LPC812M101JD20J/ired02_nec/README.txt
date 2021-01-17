@@ -294,3 +294,14 @@ in I can just ignore repeats and require a press and relase and can
 essentually use this as several buttons of user interface to my mcu
 with only needing a three pin small device and not several buttons
 on the board.
+
+I also have a Directv RC23 remote.  You can use this to generate
+perhaps all the protocols.  I like this NEC protocol the best because
+if you have a remote (not all are) that sends one full pattern
+then goes into repeats.  Then you can get one full pattern per button
+press and it is essentially doing the debouncing for you in that way.
+The sparkfun remote works this way.
+
+
+
+
